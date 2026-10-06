@@ -5,29 +5,21 @@ import com.badlogic.gdx.math.GridPoint2;
 import static com.badlogic.gdx.math.MathUtils.isEqual;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.continueProgress;
 
-/**
- * A tank: where it stands, where it is heading, how far along the move it is and which
- * way it looks. Pure state — no textures, no keys, no rendering.
- */
-public class Tank {
-
-    /** Seconds it takes to cross one tile. */
-    private static final float MOVEMENT_SPEED = 0.4f;
+public class Tank implements GameObject {
 
     private final GridPoint2 coordinates;
     private final GridPoint2 destinationCoordinates;
+    // seconds per tile
+    private final float movementSpeed;
     private float movementProgress = 1f;
     private float rotation = 0f;
 
-    public Tank(GridPoint2 initialCoordinates) {
+    public Tank(GridPoint2 initialCoordinates, float movementSpeed) {
         this.coordinates = new GridPoint2(initialCoordinates);
         this.destinationCoordinates = new GridPoint2(initialCoordinates);
+        this.movementSpeed = movementSpeed;
     }
 
-    /**
-     * Try to step one tile in {@code direction}. A tile taken by an obstacle is not entered —
-     * the tank only turns. A move already in progress is never interrupted.
-     */
     public void move(Direction direction, Obstacles obstacles) {
         if (isMoving()) {
             return;
@@ -40,11 +32,9 @@ public class Tank {
         rotation = direction.getRotation();
     }
 
-    /** Advance the current move by the time passed since the previous frame. */
     public void update(float deltaTime) {
-        movementProgress = continueProgress(movementProgress, deltaTime, MOVEMENT_SPEED);
+        movementProgress = continueProgress(movementProgress, deltaTime, movementSpeed);
         if (!isMoving()) {
-            // the tank has reached its destination
             coordinates.set(destinationCoordinates);
         }
     }
@@ -53,18 +43,22 @@ public class Tank {
         return !isEqual(movementProgress, 1f);
     }
 
+    @Override
     public GridPoint2 getCoordinates() {
         return coordinates;
     }
 
+    @Override
     public GridPoint2 getDestinationCoordinates() {
         return destinationCoordinates;
     }
 
+    @Override
     public float getMovementProgress() {
         return movementProgress;
     }
 
+    @Override
     public float getRotation() {
         return rotation;
     }

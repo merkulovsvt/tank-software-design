@@ -9,10 +9,6 @@ import ru.mipt.bit.platformer.util.TileMovement;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.createBoundingRectangle;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.drawTextureRegionUnscaled;
 
-/**
- * Draws one sprite between two tiles. It is given plain values (tiles, progress, rotation),
- * so it holds no reference to any model class — the model stays free of rendering code.
- */
 public class SpriteRenderer {
 
     private final TextureRegion region;

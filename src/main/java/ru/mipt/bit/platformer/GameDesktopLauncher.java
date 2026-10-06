@@ -23,14 +23,14 @@ import static com.badlogic.gdx.Input.Keys.S;
 import static com.badlogic.gdx.Input.Keys.UP;
 import static com.badlogic.gdx.Input.Keys.W;
 
-/**
- * Wires the pieces together and runs the game loop: read input -> update model -> draw model.
- */
 public class GameDesktopLauncher implements ApplicationListener {
 
     private static final String LEVEL_FILE = "level.tmx";
     private static final GridPoint2 TANK_START = new GridPoint2(1, 1);
     private static final GridPoint2 TREE_POSITION = new GridPoint2(1, 3);
+    private static final String TANK_TEXTURE = "images/tank_blue.png";
+    private static final String TREE_TEXTURE = "images/greenTree.png";
+    private static final float TANK_SPEED = 0.4f;
 
     private GameField field;
     private GameRenderer renderer;
@@ -38,13 +38,16 @@ public class GameDesktopLauncher implements ApplicationListener {
 
     @Override
     public void create() {
-        field = new GameField(new Tank(TANK_START));
-        field.addTree(new Tree(TREE_POSITION));
+        Tank tank = new Tank(TANK_START, TANK_SPEED);
+        Tree tree = new Tree(TREE_POSITION);
 
-        renderer = new GameRenderer(LEVEL_FILE, field);
+        field = new GameField(tank);
+        field.addObstacle(tree);
 
-        // One binding per key. Adding a new handler later (e.g. SPACE -> fire) is a single
-        // extra .bindKey(...) line here plus a new GameCommand class — nothing else changes.
+        renderer = new GameRenderer(LEVEL_FILE);
+        renderer.addObject(tank, TANK_TEXTURE);
+        renderer.addObject(tree, TREE_TEXTURE);
+
         inputController = new PlayerInputController(new GdxKeyboard())
                 .bindKey(UP, new MoveCommand(field, Direction.UP))
                 .bindKey(W, new MoveCommand(field, Direction.UP))
@@ -63,7 +66,7 @@ public class GameDesktopLauncher implements ApplicationListener {
 
         inputController.handleInput();
         field.update(deltaTime);
-        renderer.render(field);
+        renderer.render();
     }
 
     @Override
