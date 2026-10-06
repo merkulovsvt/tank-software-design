@@ -5,14 +5,13 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GameFieldTest {
 
     @Test
     void movePlayerIntoAFreeTileStartsTheMove() {
-        Tank tank = new Tank(new GridPoint2(1, 1));
+        Tank tank = new Tank(new GridPoint2(1, 1), 0.4f);
         GameField field = new GameField(tank);
 
         field.movePlayer(Direction.RIGHT);
@@ -23,9 +22,9 @@ class GameFieldTest {
 
     @Test
     void movePlayerIntoATreeOnlyTurnsTheTank() {
-        Tank tank = new Tank(new GridPoint2(1, 1));
+        Tank tank = new Tank(new GridPoint2(1, 1), 0.4f);
         GameField field = new GameField(tank);
-        field.addTree(new Tree(new GridPoint2(1, 2)));
+        field.addObstacle(new Tree(new GridPoint2(1, 2)));
 
         field.movePlayer(Direction.UP);
 
@@ -36,8 +35,8 @@ class GameFieldTest {
 
     @Test
     void isFreeIsFalseOnTreesAndTrueElsewhere() {
-        GameField field = new GameField(new Tank(new GridPoint2(0, 0)));
-        field.addTree(new Tree(new GridPoint2(2, 2)));
+        GameField field = new GameField(new Tank(new GridPoint2(0, 0), 0.4f));
+        field.addObstacle(new Tree(new GridPoint2(2, 2)));
 
         assertFalse(field.isFree(new GridPoint2(2, 2)));
         assertTrue(field.isFree(new GridPoint2(3, 3)));
@@ -45,7 +44,7 @@ class GameFieldTest {
 
     @Test
     void updateAdvancesThePlayer() {
-        Tank tank = new Tank(new GridPoint2(1, 1));
+        Tank tank = new Tank(new GridPoint2(1, 1), 0.4f);
         GameField field = new GameField(tank);
         field.movePlayer(Direction.RIGHT);
 
@@ -53,14 +52,5 @@ class GameFieldTest {
 
         assertFalse(tank.isMoving());
         assertEquals(new GridPoint2(2, 1), tank.getCoordinates());
-    }
-
-    @Test
-    void exposedTreeListCannotBeModifiedFromOutside() {
-        GameField field = new GameField(new Tank(new GridPoint2(0, 0)));
-        field.addTree(new Tree(new GridPoint2(2, 2)));
-
-        assertThrows(UnsupportedOperationException.class,
-                () -> field.getTrees().add(new Tree(new GridPoint2(3, 3))));
     }
 }

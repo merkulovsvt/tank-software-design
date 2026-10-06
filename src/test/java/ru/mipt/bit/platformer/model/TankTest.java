@@ -14,7 +14,7 @@ class TankTest {
 
     @Test
     void startsAtRestFacingRight() {
-        Tank tank = new Tank(new GridPoint2(1, 1));
+        Tank tank = new Tank(new GridPoint2(1, 1), 0.4f);
         assertFalse(tank.isMoving());
         assertEquals(new GridPoint2(1, 1), tank.getCoordinates());
         assertEquals(new GridPoint2(1, 1), tank.getDestinationCoordinates());
@@ -25,14 +25,14 @@ class TankTest {
     @Test
     void copiesItsStartPointSoLaterMutationsDoNotLeakIn() {
         GridPoint2 start = new GridPoint2(1, 1);
-        Tank tank = new Tank(start);
+        Tank tank = new Tank(start, 0.4f);
         start.set(9, 9);
         assertEquals(new GridPoint2(1, 1), tank.getCoordinates());
     }
 
     @Test
     void moveIntoAFreeTileStartsMovingAndTurns() {
-        Tank tank = new Tank(new GridPoint2(1, 1));
+        Tank tank = new Tank(new GridPoint2(1, 1), 0.4f);
         tank.move(Direction.UP, ALL_FREE);
         assertTrue(tank.isMoving());
         assertEquals(new GridPoint2(1, 1), tank.getCoordinates());       // not there yet
@@ -43,7 +43,7 @@ class TankTest {
 
     @Test
     void moveIntoABlockedTileOnlyTurns() {
-        Tank tank = new Tank(new GridPoint2(1, 1));
+        Tank tank = new Tank(new GridPoint2(1, 1), 0.4f);
         tank.move(Direction.LEFT, ALL_BLOCKED);
         assertFalse(tank.isMoving());
         assertEquals(new GridPoint2(1, 1), tank.getCoordinates());
@@ -53,7 +53,7 @@ class TankTest {
 
     @Test
     void aStartedMoveIsNotInterrupted() {
-        Tank tank = new Tank(new GridPoint2(1, 1));
+        Tank tank = new Tank(new GridPoint2(1, 1), 0.4f);
         tank.move(Direction.RIGHT, ALL_FREE); // heading right
         tank.move(Direction.UP, ALL_FREE);    // ignored while moving
         assertTrue(tank.isMoving());
@@ -63,7 +63,7 @@ class TankTest {
 
     @Test
     void updateAdvancesProgressAndArrivesAfterOneTileTime() {
-        Tank tank = new Tank(new GridPoint2(1, 1));
+        Tank tank = new Tank(new GridPoint2(1, 1), 0.4f);
         tank.move(Direction.RIGHT, ALL_FREE);
 
         tank.update(0.2f); // halfway (speed 0.4s per tile)
