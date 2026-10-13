@@ -9,10 +9,16 @@ import ru.mipt.bit.platformer.control.GdxKeyboard;
 import ru.mipt.bit.platformer.control.MoveCommand;
 import ru.mipt.bit.platformer.control.PlayerInputController;
 import ru.mipt.bit.platformer.graphics.GameRenderer;
+import ru.mipt.bit.platformer.level.FileLevelLoader;
+import ru.mipt.bit.platformer.level.LevelLayout;
+import ru.mipt.bit.platformer.level.LevelLoader;
+import ru.mipt.bit.platformer.level.RandomLevelGenerator;
 import ru.mipt.bit.platformer.model.Direction;
 import ru.mipt.bit.platformer.model.GameField;
 import ru.mipt.bit.platformer.model.Tank;
 import ru.mipt.bit.platformer.model.Tree;
+
+import java.util.Random;
 
 import static com.badlogic.gdx.Input.Keys.A;
 import static com.badlogic.gdx.Input.Keys.D;
@@ -26,8 +32,10 @@ import static com.badlogic.gdx.Input.Keys.W;
 public class GameDesktopLauncher implements ApplicationListener {
 
     private static final String LEVEL_FILE = "level.tmx";
-    private static final GridPoint2 TANK_START = new GridPoint2(1, 1);
-    private static final GridPoint2 TREE_POSITION = new GridPoint2(1, 3);
+    private static final String DEFAULT_LEVEL = "levels/level1.txt";
+    private static final int LEVEL_WIDTH = 10;
+    private static final int LEVEL_HEIGHT = 8;
+    private static final int RANDOM_TREE_COUNT = 15;
     private static final String TANK_TEXTURE = "images/tank_blue.png";
     private static final String TREE_TEXTURE = "images/greenTree.png";
     private static final float TANK_SPEED = 0.4f;
@@ -36,17 +44,26 @@ public class GameDesktopLauncher implements ApplicationListener {
     private GameRenderer renderer;
     private PlayerInputController inputController;
 
+    private final LevelLoader levelLoader;
+
+    public GameDesktopLauncher(LevelLoader levelLoader) {
+        this.levelLoader = levelLoader;
+    }
+
     @Override
     public void create() {
-        Tank tank = new Tank(TANK_START, TANK_SPEED);
-        Tree tree = new Tree(TREE_POSITION);
+        LevelLayout layout = levelLoader.load();
+        Tank tank = new Tank(layout.getPlayerStart(), TANK_SPEED);
 
         field = new GameField(tank);
-        field.addObstacle(tree);
-
         renderer = new GameRenderer(LEVEL_FILE);
         renderer.addObject(tank, TANK_TEXTURE);
-        renderer.addObject(tree, TREE_TEXTURE);
+
+        for (GridPoint2 treeCoordinates : layout.getTreeCoordinates()) {
+            Tree tree = new Tree(treeCoordinates);
+            field.addObstacle(tree);
+            renderer.addObject(tree, TREE_TEXTURE);
+        }
 
         inputController = new PlayerInputController(new GdxKeyboard())
                 .bindKey(UP, new MoveCommand(field, Direction.UP))
@@ -93,6 +110,15 @@ public class GameDesktopLauncher implements ApplicationListener {
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
         // level width: 10 tiles x 128px, height: 8 tiles x 128px
         config.setWindowedMode(1280, 1024);
-        new Lwjgl3Application(new GameDesktopLauncher(), config);
+        new Lwjgl3Application(new GameDesktopLauncher(createLevelLoader(args)), config);
+    }
+
+    // ./gradlew run --args="random" - random level, ./gradlew run --args="levels/other.txt" - level from file
+    private static LevelLoader createLevelLoader(String[] args) {
+        if (args.length > 0 && args[0].equals("random")) {
+            return new RandomLevelGenerator(LEVEL_WIDTH, LEVEL_HEIGHT, RANDOM_TREE_COUNT, new Random());
+        }
+        String levelFile = args.length > 0 ? args[0] : DEFAULT_LEVEL;
+        return new FileLevelLoader(levelFile);
     }
 }
