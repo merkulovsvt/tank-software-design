@@ -1,9 +1,11 @@
 package ru.mipt.bit.platformer.control;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
-public class PlayerInputController {
+public class PlayerInputController implements TankController {
 
     private final Keyboard keyboard;
     private final Map<Integer, GameCommand> bindings = new LinkedHashMap<>();
@@ -17,11 +19,14 @@ public class PlayerInputController {
         return this;
     }
 
-    public void handleInput() {
+    @Override
+    public List<GameCommand> nextCommands() {
+        List<GameCommand> commands = new ArrayList<>();
         for (Map.Entry<Integer, GameCommand> binding : bindings.entrySet()) {
             if (keyboard.isPressed(binding.getKey())) {
-                binding.getValue().execute();
+                commands.add(binding.getValue());
             }
         }
+        return commands;
     }
 }

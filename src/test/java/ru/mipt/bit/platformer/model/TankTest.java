@@ -62,6 +62,26 @@ class TankTest {
     }
 
     @Test
+    void restingTankOccupiesOnlyItsTile() {
+        Tank tank = new Tank(new GridPoint2(1, 1), 0.4f);
+        assertTrue(tank.occupies(new GridPoint2(1, 1)));
+        assertFalse(tank.occupies(new GridPoint2(2, 1)));
+    }
+
+    @Test
+    void movingTankOccupiesBothTiles() {
+        Tank tank = new Tank(new GridPoint2(1, 1), 0.4f);
+        tank.move(Direction.RIGHT, ALL_FREE);
+        assertTrue(tank.occupies(new GridPoint2(1, 1)));
+        assertTrue(tank.occupies(new GridPoint2(2, 1)));
+        assertFalse(tank.occupies(new GridPoint2(0, 1)));
+
+        tank.update(0.4f);
+        assertFalse(tank.occupies(new GridPoint2(1, 1)));
+        assertTrue(tank.occupies(new GridPoint2(2, 1)));
+    }
+
+    @Test
     void updateAdvancesProgressAndArrivesAfterOneTileTime() {
         Tank tank = new Tank(new GridPoint2(1, 1), 0.4f);
         tank.move(Direction.RIGHT, ALL_FREE);

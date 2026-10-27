@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.GridPoint2;
 import static com.badlogic.gdx.math.MathUtils.isEqual;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.continueProgress;
 
-public class Tank implements GameObject {
+public class Tank implements GameObject, Obstacle {
 
     private final GridPoint2 coordinates;
     private final GridPoint2 destinationCoordinates;
@@ -41,6 +41,12 @@ public class Tank implements GameObject {
 
     public boolean isMoving() {
         return !isEqual(movementProgress, 1f);
+    }
+
+    // while moving the tank holds both tiles: the one it leaves and the one it goes to
+    @Override
+    public boolean occupies(GridPoint2 otherCoordinates) {
+        return coordinates.equals(otherCoordinates) || destinationCoordinates.equals(otherCoordinates);
     }
 
     @Override
