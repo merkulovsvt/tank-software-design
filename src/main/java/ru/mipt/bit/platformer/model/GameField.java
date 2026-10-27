@@ -7,13 +7,12 @@ import java.util.List;
 
 public class GameField implements Obstacles {
 
-    private final Tank player;
     private final int width;
     private final int height;
+    private final List<Tank> tanks = new ArrayList<>();
     private final List<Obstacle> obstacles = new ArrayList<>();
 
-    public GameField(Tank player, int width, int height) {
-        this.player = player;
+    public GameField(int width, int height) {
         this.width = width;
         this.height = height;
     }
@@ -22,12 +21,15 @@ public class GameField implements Obstacles {
         obstacles.add(obstacle);
     }
 
-    public void movePlayer(Direction direction) {
-        player.move(direction, this);
+    public void addTank(Tank tank) {
+        tanks.add(tank);
+        obstacles.add(tank);
     }
 
     public void update(float deltaTime) {
-        player.update(deltaTime);
+        for (Tank tank : tanks) {
+            tank.update(deltaTime);
+        }
     }
 
     @Override

@@ -44,6 +44,12 @@ class PlayerInputControllerTest {
         }
     }
 
+    private static void runAll(List<GameCommand> commands) {
+        for (GameCommand command : commands) {
+            command.execute();
+        }
+    }
+
     @Test
     void runsOnlyTheCommandsWhoseKeyIsPressed() {
         List<String> log = new ArrayList<>();
@@ -52,7 +58,7 @@ class PlayerInputControllerTest {
                 .bindKey(20, new RecordingCommand("b", log))
                 .bindKey(30, new RecordingCommand("c", log));
 
-        controller.handleInput();
+        runAll(controller.nextCommands());
 
         assertEquals(List.of("b"), log);
     }
@@ -63,7 +69,7 @@ class PlayerInputControllerTest {
         PlayerInputController controller = new PlayerInputController(new FakeKeyboard())
                 .bindKey(10, new RecordingCommand("a", log));
 
-        controller.handleInput();
+        runAll(controller.nextCommands());
 
         assertEquals(List.of(), log);
     }
@@ -75,7 +81,7 @@ class PlayerInputControllerTest {
                 .bindKey(10, new RecordingCommand("first", log))
                 .bindKey(20, new RecordingCommand("second", log));
 
-        controller.handleInput();
+        runAll(controller.nextCommands());
 
         assertEquals(List.of("first", "second"), log);
     }
