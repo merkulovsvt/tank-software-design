@@ -32,12 +32,16 @@ public class GameRenderer implements Disposable {
     private final Map<String, Texture> textures = new HashMap<>();
     private final Map<GameObject, SpriteRenderer> sprites = new LinkedHashMap<>();
 
-    public GameRenderer(String levelFile) {
+    public GameRenderer(String levelFile, int levelWidth, int levelHeight) {
         batch = new SpriteBatch();
 
         tiledMap = new TmxMapLoader().load(levelFile);
         tiledMapRenderer = createSingleLayerMapRenderer(tiledMap, batch);
         TiledMapTileLayer groundLayer = getSingleLayer(tiledMap);
+        if (groundLayer.getWidth() != levelWidth || groundLayer.getHeight() != levelHeight) {
+            throw new IllegalArgumentException("Level is " + levelWidth + "x" + levelHeight + ", but map "
+                    + levelFile + " is " + groundLayer.getWidth() + "x" + groundLayer.getHeight());
+        }
         tileMovement = new TileMovement(groundLayer, Interpolation.smooth);
     }
 

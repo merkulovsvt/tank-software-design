@@ -24,6 +24,22 @@ class FileLevelLoaderTest {
     }
 
     @Test
+    void parseTakesLevelSizeFromTheFile() {
+        LevelLayout layout = FileLevelLoader.parse(List.of(
+                "T___",
+                "_X__"
+        ));
+
+        assertEquals(4, layout.getWidth());
+        assertEquals(2, layout.getHeight());
+    }
+
+    @Test
+    void parseWithRowsOfDifferentLengthFails() {
+        assertThrows(IllegalArgumentException.class, () -> FileLevelLoader.parse(List.of("X__", "__")));
+    }
+
+    @Test
     void parseWithoutPlayerFails() {
         assertThrows(IllegalArgumentException.class, () -> FileLevelLoader.parse(List.of("T__", "___")));
     }
@@ -42,6 +58,8 @@ class FileLevelLoaderTest {
     void loadReadsLevelFromResources() {
         LevelLayout layout = new FileLevelLoader("levels/level1.txt").load();
 
+        assertEquals(10, layout.getWidth());
+        assertEquals(8, layout.getHeight());
         assertEquals(new GridPoint2(5, 2), layout.getPlayerStart());
         assertTrue(layout.getTreeCoordinates().contains(new GridPoint2(3, 6)));
         assertEquals(15, layout.getTreeCoordinates().size());

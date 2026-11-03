@@ -45,12 +45,19 @@ public class FileLevelLoader implements LevelLoader {
             }
         }
 
+        int width = rows.isEmpty() ? 0 : rows.get(0).length();
+        int height = rows.size();
+
         GridPoint2 playerStart = null;
         List<GridPoint2> trees = new ArrayList<>();
         // first line of the file is the top row of the level, y grows upwards
         for (int row = 0; row < rows.size(); row++) {
             int y = rows.size() - 1 - row;
             String line = rows.get(row);
+            if (line.length() != width) {
+                throw new IllegalArgumentException("Line " + (row + 1) + " has length " + line.length()
+                        + ", expected " + width);
+            }
             for (int x = 0; x < line.length(); x++) {
                 char cell = line.charAt(x);
                 if (cell == TREE) {
@@ -68,6 +75,6 @@ public class FileLevelLoader implements LevelLoader {
         if (playerStart == null) {
             throw new IllegalArgumentException("Level has no player start");
         }
-        return new LevelLayout(playerStart, trees);
+        return new LevelLayout(width, height, playerStart, trees);
     }
 }

@@ -14,7 +14,7 @@ class MoveCommandTest {
     @Test
     void executeAsksTheFieldToMoveThePlayerInItsDirection() {
         Tank tank = new Tank(new GridPoint2(1, 1), 0.4f);
-        GameField field = new GameField(tank);
+        GameField field = new GameField(tank, 10, 8);
 
         new MoveCommand(field, Direction.UP).execute();
 

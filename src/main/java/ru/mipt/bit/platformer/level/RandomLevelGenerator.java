@@ -37,6 +37,6 @@ public class RandomLevelGenerator implements LevelLoader {
         // first cell goes to the player, next ones to trees - so they never overlap
         GridPoint2 playerStart = cells.get(0);
         List<GridPoint2> trees = cells.subList(1, treeCount + 1);
-        return new LevelLayout(playerStart, trees);
+        return new LevelLayout(width, height, playerStart, trees);
     }
 }

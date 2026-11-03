@@ -18,6 +18,8 @@ class RandomLevelGeneratorTest {
     void generatesRequestedNumberOfTreesInsideTheLevel() {
         LevelLayout layout = new RandomLevelGenerator(10, 8, 20, new Random(42)).load();
 
+        assertEquals(10, layout.getWidth());
+        assertEquals(8, layout.getHeight());
         assertEquals(20, layout.getTreeCoordinates().size());
         for (GridPoint2 tree : layout.getTreeCoordinates()) {
             assertTrue(tree.x >= 0 && tree.x < 10 && tree.y >= 0 && tree.y < 8);

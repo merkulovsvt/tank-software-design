@@ -55,8 +55,8 @@ public class GameDesktopLauncher implements ApplicationListener {
         LevelLayout layout = levelLoader.load();
         Tank tank = new Tank(layout.getPlayerStart(), TANK_SPEED);
 
-        field = new GameField(tank);
-        renderer = new GameRenderer(LEVEL_FILE);
+        field = new GameField(tank, layout.getWidth(), layout.getHeight());
+        renderer = new GameRenderer(LEVEL_FILE, layout.getWidth(), layout.getHeight());
         renderer.addObject(tank, TANK_TEXTURE);
 
         for (GridPoint2 treeCoordinates : layout.getTreeCoordinates()) {
