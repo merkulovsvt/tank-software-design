@@ -31,6 +31,15 @@ class TankTest {
     }
 
     @Test
+    void returnedPointsCannotChangeTheTank() {
+        Tank tank = new Tank(new GridPoint2(1, 1));
+        tank.getCoordinates().set(9, 9);
+        tank.getDestinationCoordinates().set(9, 9);
+        assertEquals(new GridPoint2(1, 1), tank.getCoordinates());
+        assertEquals(new GridPoint2(1, 1), tank.getDestinationCoordinates());
+    }
+
+    @Test
     void moveIntoAFreeTileStartsMovingAndTurns() {
         Tank tank = new Tank(new GridPoint2(1, 1));
         tank.move(Direction.UP, ALL_FREE);

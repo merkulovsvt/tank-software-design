@@ -29,4 +29,12 @@ class TreeTest {
         start.set(0, 0);
         assertEquals(new GridPoint2(2, 7), tree.getCoordinates());
     }
+
+    @Test
+    void returnedPointCannotMoveTheTree() {
+        Tree tree = new Tree(new GridPoint2(2, 7));
+        tree.getCoordinates().set(0, 0);
+        assertEquals(new GridPoint2(2, 7), tree.getCoordinates());
+        assertTrue(tree.occupies(new GridPoint2(2, 7)));
+    }
 }

@@ -18,6 +18,6 @@ public class Tree {
     }
 
     public GridPoint2 getCoordinates() {
-        return coordinates;
+        return new GridPoint2(coordinates);
     }
 }
