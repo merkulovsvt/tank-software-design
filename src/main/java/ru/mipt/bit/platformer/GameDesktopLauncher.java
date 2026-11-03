@@ -10,6 +10,7 @@ import ru.mipt.bit.platformer.control.GdxKeyboard;
 import ru.mipt.bit.platformer.control.MoveCommand;
 import ru.mipt.bit.platformer.control.PlayerInputController;
 import ru.mipt.bit.platformer.control.RandomTankController;
+import ru.mipt.bit.platformer.control.ShootCommand;
 import ru.mipt.bit.platformer.control.TankController;
 import ru.mipt.bit.platformer.graphics.GameRenderer;
 import ru.mipt.bit.platformer.level.FileLevelLoader;
@@ -17,6 +18,7 @@ import ru.mipt.bit.platformer.level.LevelLayout;
 import ru.mipt.bit.platformer.level.LevelLoader;
 import ru.mipt.bit.platformer.level.RandomLevelGenerator;
 import ru.mipt.bit.platformer.level.RandomTankGenerator;
+import ru.mipt.bit.platformer.model.Bullet;
 import ru.mipt.bit.platformer.model.Direction;
 import ru.mipt.bit.platformer.model.GameField;
 import ru.mipt.bit.platformer.model.Tank;
@@ -32,6 +34,7 @@ import static com.badlogic.gdx.Input.Keys.DOWN;
 import static com.badlogic.gdx.Input.Keys.LEFT;
 import static com.badlogic.gdx.Input.Keys.RIGHT;
 import static com.badlogic.gdx.Input.Keys.S;
+import static com.badlogic.gdx.Input.Keys.SPACE;
 import static com.badlogic.gdx.Input.Keys.UP;
 import static com.badlogic.gdx.Input.Keys.W;
 
@@ -45,6 +48,7 @@ public class GameDesktopLauncher implements ApplicationListener {
     private static final int ENEMY_TANK_COUNT = 4;
     private static final String TANK_TEXTURE = "images/tank_blue.png";
     private static final String TREE_TEXTURE = "images/greenTree.png";
+    private static final String BULLET_TEXTURE = "images/bullet.png";
     private static final float TANK_SPEED = 0.4f;
 
     private GameField field;
@@ -63,16 +67,17 @@ public class GameDesktopLauncher implements ApplicationListener {
         Random random = new Random();
 
         field = new GameField(layout.getWidth(), layout.getHeight());
-        renderer = new GameRenderer(LEVEL_FILE, layout.getWidth(), layout.getHeight());
+        renderer = new GameRenderer(LEVEL_FILE, layout.getWidth(), layout.getHeight())
+                .bindTexture(Tank.class, TANK_TEXTURE)
+                .bindTexture(Tree.class, TREE_TEXTURE)
+                .bindTexture(Bullet.class, BULLET_TEXTURE);
+        field.addListener(renderer);
 
         Tank player = new Tank(layout.getPlayerStart(), TANK_SPEED);
-        field.addTank(player);
-        renderer.addObject(player, TANK_TEXTURE);
+        field.add(player);
 
         for (GridPoint2 treeCoordinates : layout.getTreeCoordinates()) {
-            Tree tree = new Tree(treeCoordinates);
-            field.addObstacle(tree);
-            renderer.addObject(tree, TREE_TEXTURE);
+            field.add(new Tree(treeCoordinates));
         }
 
         controllers.add(new PlayerInputController(new GdxKeyboard())
@@ -83,13 +88,13 @@ public class GameDesktopLauncher implements ApplicationListener {
                 .bindKey(DOWN, new MoveCommand(player, field, Direction.DOWN))
                 .bindKey(S, new MoveCommand(player, field, Direction.DOWN))
                 .bindKey(RIGHT, new MoveCommand(player, field, Direction.RIGHT))
-                .bindKey(D, new MoveCommand(player, field, Direction.RIGHT)));
+                .bindKey(D, new MoveCommand(player, field, Direction.RIGHT))
+                .bindKey(SPACE, new ShootCommand(player, field)));
 
         RandomTankGenerator tankGenerator = new RandomTankGenerator(layout.getWidth(), layout.getHeight(), ENEMY_TANK_COUNT, random);
         for (GridPoint2 enemyStart : tankGenerator.generate(layout)) {
             Tank enemy = new Tank(enemyStart, TANK_SPEED);
-            field.addTank(enemy);
-            renderer.addObject(enemy, TANK_TEXTURE);
+            field.add(enemy);
             controllers.add(new RandomTankController(enemy, field, random));
         }
     }
@@ -99,10 +104,12 @@ public class GameDesktopLauncher implements ApplicationListener {
         // get time passed since the last render
         float deltaTime = Gdx.graphics.getDeltaTime();
 
+        List<GameCommand> commands = new ArrayList<>();
         for (TankController controller : controllers) {
-            for (GameCommand command : controller.nextCommands()) {
-                command.execute();
-            }
+            commands.addAll(controller.nextCommands());
+        }
+        for (GameCommand command : commands) {
+            command.execute();
         }
         field.update(deltaTime);
         renderer.render();

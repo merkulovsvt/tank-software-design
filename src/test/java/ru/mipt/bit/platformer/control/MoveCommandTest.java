@@ -17,7 +17,7 @@ class MoveCommandTest {
     void executeMovesItsTankInItsDirection() {
         Tank tank = new Tank(new GridPoint2(1, 1), 0.4f);
         GameField field = new GameField(10, 8);
-        field.addTank(tank);
+        field.add(tank);
 
         new MoveCommand(tank, field, Direction.UP).execute();
 
@@ -30,8 +30,8 @@ class MoveCommandTest {
     void executeChecksObstaclesOfTheGivenField() {
         Tank tank = new Tank(new GridPoint2(1, 1), 0.4f);
         GameField field = new GameField(10, 8);
-        field.addTank(tank);
-        field.addObstacle(new Tree(new GridPoint2(1, 2)));
+        field.add(tank);
+        field.add(new Tree(new GridPoint2(1, 2)));
 
         new MoveCommand(tank, field, Direction.UP).execute();
 

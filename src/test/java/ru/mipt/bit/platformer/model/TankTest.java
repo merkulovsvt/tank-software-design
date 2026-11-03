@@ -104,4 +104,123 @@ class TankTest {
         assertEquals(new GridPoint2(2, 1), tank.getCoordinates());
         assertEquals(1f, tank.getMovementProgress());
     }
+
+    @Test
+    void shootPutsABulletInFrontOfTheTankFlyingWhereItLooks() {
+        GameField field = new GameField(10, 8);
+        Tank tank = new Tank(new GridPoint2(1, 1), 0.4f);
+        field.add(tank);
+        tank.move(Direction.UP, ALL_BLOCKED);
+
+        tank.shoot(field);
+
+        assertFalse(field.isFree(new GridPoint2(1, 2)));
+        field.update(0f);
+        assertFalse(field.isFree(new GridPoint2(1, 3)));
+    }
+
+    private static class AddedCounter implements GameFieldListener {
+        int added;
+
+        @Override
+        public void objectAdded(FieldObject object) {
+            added++;
+        }
+
+        @Override
+        public void objectRemoved(FieldObject object) {
+        }
+    }
+
+    @Test
+    void cannotShootWhileMoving() {
+        GameField field = new GameField(10, 8);
+        Tank tank = new Tank(new GridPoint2(1, 1), 0.4f);
+        field.add(tank);
+        tank.move(Direction.RIGHT, field);
+        AddedCounter counter = new AddedCounter();
+        field.addListener(counter);
+
+        tank.shoot(field);
+
+        assertEquals(0, counter.added);
+    }
+
+    @Test
+    void secondShotWaitsForReload() {
+        GameField field = new GameField(10, 8);
+        Tank tank = new Tank(new GridPoint2(1, 1), 0.4f);
+        Tank target = new Tank(new GridPoint2(2, 1), 0.4f);
+        field.add(tank);
+        field.add(target);
+
+        tank.shoot(field);
+        tank.shoot(field);
+        assertEquals(2, target.getHealth());
+
+        field.update(0.5f);
+        tank.shoot(field);
+        assertEquals(1, target.getHealth());
+    }
+
+    @Test
+    void pointBlankShotHitsTheNeighbourWithoutABullet() {
+        GameField field = new GameField(10, 8);
+        Tank tank = new Tank(new GridPoint2(1, 1), 0.4f);
+        Tank target = new Tank(new GridPoint2(2, 1), 0.4f);
+        field.add(tank);
+        field.add(target);
+
+        tank.shoot(field);
+
+        assertEquals(2, target.getHealth());
+        assertFalse(tank.isDestroyed());
+        assertEquals(3, tank.getHealth());
+    }
+
+    @Test
+    void shotIntoATreeOrTheEdgeChangesNothing() {
+        GameField field = new GameField(10, 8);
+        Tank tank = new Tank(new GridPoint2(9, 1), 0.4f);
+        Tree tree = new Tree(new GridPoint2(9, 2));
+        field.add(tank);
+        field.add(tree);
+        AddedCounter counter = new AddedCounter();
+        field.addListener(counter);
+
+        tank.shoot(field);
+        field.update(0.5f);
+        tank.move(Direction.UP, field);
+        tank.shoot(field);
+
+        assertEquals(0, counter.added);
+        assertEquals(3, tank.getHealth());
+        assertFalse(field.isFree(new GridPoint2(9, 2)));
+    }
+
+    @Test
+    void tankIsDestroyedWhenHealthRunsOut() {
+        Tank tank = new Tank(new GridPoint2(1, 1), 0.4f);
+
+        tank.hit(2);
+        assertFalse(tank.isDestroyed());
+        tank.hit(1);
+        assertTrue(tank.isDestroyed());
+    }
+
+    @Test
+    void destroyedTankNeitherMovesNorShoots() {
+        GameField field = new GameField(10, 8);
+        Tank tank = new Tank(new GridPoint2(1, 1), 0.4f);
+        tank.hit(3);
+
+        AddedCounter counter = new AddedCounter();
+        field.addListener(counter);
+
+        tank.move(Direction.UP, ALL_FREE);
+        tank.shoot(field);
+
+        assertFalse(tank.isMoving());
+        assertEquals(0, counter.added);
+    }
 }

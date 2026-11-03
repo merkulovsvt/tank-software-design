@@ -3,7 +3,7 @@ package ru.mipt.bit.platformer.control;
 import com.badlogic.gdx.math.GridPoint2;
 import org.junit.jupiter.api.Test;
 import ru.mipt.bit.platformer.model.Direction;
-import ru.mipt.bit.platformer.model.Obstacles;
+import ru.mipt.bit.platformer.model.GameField;
 import ru.mipt.bit.platformer.model.Tank;
 
 import java.util.HashSet;
@@ -16,25 +16,20 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RandomTankControllerTest {
 
-    private static final Obstacles ALL_FREE = coordinates -> true;
-
     @Test
-    void restingTankGetsOneMoveCommand() {
+    void restingTankGetsOneCommand() {
         Tank tank = new Tank(new GridPoint2(5, 5), 0.4f);
-        RandomTankController controller = new RandomTankController(tank, ALL_FREE, new Random(1));
+        RandomTankController controller = new RandomTankController(tank, new GameField(10, 8), new Random(1));
 
-        List<GameCommand> commands = controller.nextCommands();
-        assertEquals(1, commands.size());
-
-        commands.get(0).execute();
-        assertTrue(tank.isMoving());
+        assertEquals(1, controller.nextCommands().size());
     }
 
     @Test
     void movingTankGetsNoCommands() {
+        GameField field = new GameField(10, 8);
         Tank tank = new Tank(new GridPoint2(5, 5), 0.4f);
-        tank.move(Direction.UP, ALL_FREE);
-        RandomTankController controller = new RandomTankController(tank, ALL_FREE, new Random(1));
+        tank.move(Direction.UP, field);
+        RandomTankController controller = new RandomTankController(tank, field, new Random(1));
 
         assertEquals(List.of(), controller.nextCommands());
     }
@@ -45,13 +40,32 @@ class RandomTankControllerTest {
         Random random = new Random(42);
         for (int i = 0; i < 100; i++) {
             Tank tank = new Tank(new GridPoint2(5, 5), 0.4f);
-            for (GameCommand command : new RandomTankController(tank, ALL_FREE, random).nextCommands()) {
+            for (GameCommand command : new RandomTankController(tank, new GameField(10, 8), random).nextCommands()) {
                 command.execute();
             }
             destinations.add(tank.getDestinationCoordinates());
         }
 
-        assertEquals(Set.of(new GridPoint2(5, 6), new GridPoint2(4, 5),
-                new GridPoint2(5, 4), new GridPoint2(6, 5)), destinations);
+        assertTrue(destinations.containsAll(Set.of(new GridPoint2(5, 6), new GridPoint2(4, 5),
+                new GridPoint2(5, 4), new GridPoint2(6, 5))));
+    }
+
+    @Test
+    void sometimesShootsInsteadOfMoving() {
+        int shots = 0;
+        Random random = new Random(42);
+        for (int i = 0; i < 100; i++) {
+            GameField field = new GameField(10, 8);
+            Tank tank = new Tank(new GridPoint2(5, 5), 0.4f);
+            field.add(tank);
+            for (GameCommand command : new RandomTankController(tank, field, random).nextCommands()) {
+                command.execute();
+            }
+            if (!tank.isMoving() && !field.isFree(new GridPoint2(6, 5))) {
+                shots++;
+            }
+        }
+
+        assertTrue(shots > 0 && shots < 100, "shots: " + shots);
     }
 }

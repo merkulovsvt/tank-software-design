@@ -5,30 +5,57 @@ import com.badlogic.gdx.math.GridPoint2;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GameField implements Obstacles {
+public class GameField implements Battlefield {
 
     private final int width;
     private final int height;
-    private final List<Tank> tanks = new ArrayList<>();
-    private final List<Obstacle> obstacles = new ArrayList<>();
+    private final List<FieldObject> objects = new ArrayList<>();
+    private final List<GameFieldListener> listeners = new ArrayList<>();
 
     public GameField(int width, int height) {
         this.width = width;
         this.height = height;
     }
 
-    public void addObstacle(Obstacle obstacle) {
-        obstacles.add(obstacle);
+    public void addListener(GameFieldListener listener) {
+        listeners.add(listener);
     }
 
-    public void addTank(Tank tank) {
-        tanks.add(tank);
-        obstacles.add(tank);
+    @Override
+    public void add(FieldObject object) {
+        objects.add(object);
+        for (GameFieldListener listener : listeners) {
+            listener.objectAdded(object);
+        }
+    }
+
+    @Override
+    public void remove(FieldObject object) {
+        if (!objects.remove(object)) {
+            return;
+        }
+        for (GameFieldListener listener : listeners) {
+            listener.objectRemoved(object);
+        }
     }
 
     public void update(float deltaTime) {
-        for (Tank tank : tanks) {
-            tank.update(deltaTime);
+        for (FieldObject object : new ArrayList<>(objects)) {
+            if (!object.isDestroyed()) {
+                object.update(deltaTime);
+            }
+        }
+    }
+
+    @Override
+    public void hit(GridPoint2 coordinates, int damage) {
+        for (FieldObject object : new ArrayList<>(objects)) {
+            if (object.occupies(coordinates)) {
+                object.hit(damage);
+                if (object.isDestroyed()) {
+                    remove(object);
+                }
+            }
         }
     }
 
@@ -37,8 +64,8 @@ public class GameField implements Obstacles {
         if (!isInside(coordinates)) {
             return false;
         }
-        for (Obstacle obstacle : obstacles) {
-            if (obstacle.occupies(coordinates)) {
+        for (FieldObject object : objects) {
+            if (object.occupies(coordinates)) {
                 return false;
             }
         }

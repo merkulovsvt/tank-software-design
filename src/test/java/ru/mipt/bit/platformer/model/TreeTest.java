@@ -39,4 +39,11 @@ class TreeTest {
         assertEquals(new GridPoint2(2, 7), tree.getDestinationCoordinates());
         assertTrue(tree.occupies(new GridPoint2(2, 7)));
     }
+
+    @Test
+    void cannotBeDestroyed() {
+        Tree tree = new Tree(new GridPoint2(2, 7));
+        tree.hit(100);
+        assertFalse(tree.isDestroyed());
+    }
 }

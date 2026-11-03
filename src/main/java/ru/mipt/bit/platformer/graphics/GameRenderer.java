@@ -11,6 +11,8 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.utils.Disposable;
+import ru.mipt.bit.platformer.model.FieldObject;
+import ru.mipt.bit.platformer.model.GameFieldListener;
 import ru.mipt.bit.platformer.model.GameObject;
 import ru.mipt.bit.platformer.util.TileMovement;
 
@@ -22,13 +24,14 @@ import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.createSingleLayerMapRenderer;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.getSingleLayer;
 
-public class GameRenderer implements Disposable {
+public class GameRenderer implements Disposable, GameFieldListener {
 
     private final Batch batch;
     private final TiledMap tiledMap;
     private final MapRenderer tiledMapRenderer;
     private final TileMovement tileMovement;
 
+    private final Map<Class<? extends GameObject>, String> texturePaths = new HashMap<>();
     private final Map<String, Texture> textures = new HashMap<>();
     private final Map<GameObject, SpriteRenderer> sprites = new LinkedHashMap<>();
 
@@ -45,9 +48,24 @@ public class GameRenderer implements Disposable {
         tileMovement = new TileMovement(groundLayer, Interpolation.smooth);
     }
 
-    public void addObject(GameObject object, String texturePath) {
+    public GameRenderer bindTexture(Class<? extends GameObject> type, String texturePath) {
+        texturePaths.put(type, texturePath);
+        return this;
+    }
+
+    @Override
+    public void objectAdded(FieldObject object) {
+        String texturePath = texturePaths.get(object.getClass());
+        if (texturePath == null) {
+            throw new IllegalStateException("No texture bound for " + object.getClass().getSimpleName());
+        }
         Texture texture = textures.computeIfAbsent(texturePath, Texture::new);
         sprites.put(object, new SpriteRenderer(new TextureRegion(texture)));
+    }
+
+    @Override
+    public void objectRemoved(FieldObject object) {
+        sprites.remove(object);
     }
 
     public void render() {
