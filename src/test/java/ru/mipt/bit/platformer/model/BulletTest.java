@@ -64,7 +64,7 @@ class BulletTest {
         field.update(0f);
 
         assertTrue(bullet.isDestroyed());
-        assertEquals(2, tank.getHealth());
+        assertEquals(99, tank.getHealth());
         assertTrue(field.isFree(new GridPoint2(1, 1)));
     }
 

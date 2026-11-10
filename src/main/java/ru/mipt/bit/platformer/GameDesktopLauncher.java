@@ -12,7 +12,9 @@ import ru.mipt.bit.platformer.control.PlayerInputController;
 import ru.mipt.bit.platformer.control.RandomTankController;
 import ru.mipt.bit.platformer.control.ShootCommand;
 import ru.mipt.bit.platformer.control.TankController;
+import ru.mipt.bit.platformer.control.ToggleHealthBarsCommand;
 import ru.mipt.bit.platformer.graphics.GameRenderer;
+import ru.mipt.bit.platformer.graphics.HealthBarVisibility;
 import ru.mipt.bit.platformer.level.FileLevelLoader;
 import ru.mipt.bit.platformer.level.LevelLayout;
 import ru.mipt.bit.platformer.level.LevelLoader;
@@ -31,6 +33,7 @@ import java.util.Random;
 import static com.badlogic.gdx.Input.Keys.A;
 import static com.badlogic.gdx.Input.Keys.D;
 import static com.badlogic.gdx.Input.Keys.DOWN;
+import static com.badlogic.gdx.Input.Keys.L;
 import static com.badlogic.gdx.Input.Keys.LEFT;
 import static com.badlogic.gdx.Input.Keys.RIGHT;
 import static com.badlogic.gdx.Input.Keys.S;
@@ -65,9 +68,10 @@ public class GameDesktopLauncher implements ApplicationListener {
     public void create() {
         LevelLayout layout = levelLoader.load();
         Random random = new Random();
+        HealthBarVisibility healthBarVisibility = new HealthBarVisibility();
 
         field = new GameField(layout.getWidth(), layout.getHeight());
-        renderer = new GameRenderer(LEVEL_FILE, layout.getWidth(), layout.getHeight())
+        renderer = new GameRenderer(LEVEL_FILE, layout.getWidth(), layout.getHeight(), healthBarVisibility)
                 .bindTexture(Tank.class, TANK_TEXTURE)
                 .bindTexture(Tree.class, TREE_TEXTURE)
                 .bindTexture(Bullet.class, BULLET_TEXTURE);
@@ -89,7 +93,8 @@ public class GameDesktopLauncher implements ApplicationListener {
                 .bindKey(S, new MoveCommand(player, field, Direction.DOWN))
                 .bindKey(RIGHT, new MoveCommand(player, field, Direction.RIGHT))
                 .bindKey(D, new MoveCommand(player, field, Direction.RIGHT))
-                .bindKey(SPACE, new ShootCommand(player, field)));
+                .bindKey(SPACE, new ShootCommand(player, field))
+                .bindKeyPress(L, new ToggleHealthBarsCommand(healthBarVisibility)));
 
         RandomTankGenerator tankGenerator = new RandomTankGenerator(layout.getWidth(), layout.getHeight(), ENEMY_TANK_COUNT, random);
         for (GridPoint2 enemyStart : tankGenerator.generate(layout)) {

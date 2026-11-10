@@ -14,6 +14,7 @@ class PlayerInputControllerTest {
     /** Fake keyboard: only the keys we mark as pressed report as pressed. */
     private static class FakeKeyboard implements Keyboard {
         private final Set<Integer> pressed = new HashSet<>();
+        private final Set<Integer> justPressed = new HashSet<>();
 
         FakeKeyboard press(int... keys) {
             for (int key : keys) {
@@ -22,9 +23,21 @@ class PlayerInputControllerTest {
             return this;
         }
 
+        FakeKeyboard justPress(int... keys) {
+            for (int key : keys) {
+                justPressed.add(key);
+            }
+            return this;
+        }
+
         @Override
         public boolean isPressed(int keyCode) {
             return pressed.contains(keyCode);
+        }
+
+        @Override
+        public boolean isJustPressed(int keyCode) {
+            return justPressed.contains(keyCode);
         }
     }
 
@@ -84,5 +97,28 @@ class PlayerInputControllerTest {
         runAll(controller.nextCommands());
 
         assertEquals(List.of("first", "second"), log);
+    }
+
+    @Test
+    void pressBindingIgnoresAKeyThatIsOnlyHeld() {
+        List<String> log = new ArrayList<>();
+        PlayerInputController controller = new PlayerInputController(new FakeKeyboard().press(10))
+                .bindKeyPress(10, new RecordingCommand("toggle", log));
+
+        runAll(controller.nextCommands());
+
+        assertEquals(List.of(), log);
+    }
+
+    @Test
+    void pressBindingRunsWhenTheKeyIsJustPressed() {
+        List<String> log = new ArrayList<>();
+        PlayerInputController controller = new PlayerInputController(new FakeKeyboard().press(10).justPress(20))
+                .bindKey(10, new RecordingCommand("move", log))
+                .bindKeyPress(20, new RecordingCommand("toggle", log));
+
+        runAll(controller.nextCommands());
+
+        assertEquals(List.of("move", "toggle"), log);
     }
 }

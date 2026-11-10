@@ -1,6 +1,8 @@
 package ru.mipt.bit.platformer.graphics;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -14,6 +16,7 @@ import com.badlogic.gdx.utils.Disposable;
 import ru.mipt.bit.platformer.model.FieldObject;
 import ru.mipt.bit.platformer.model.GameFieldListener;
 import ru.mipt.bit.platformer.model.GameObject;
+import ru.mipt.bit.platformer.model.LivingObject;
 import ru.mipt.bit.platformer.util.TileMovement;
 
 import java.util.HashMap;
@@ -30,13 +33,17 @@ public class GameRenderer implements Disposable, GameFieldListener {
     private final TiledMap tiledMap;
     private final MapRenderer tiledMapRenderer;
     private final TileMovement tileMovement;
+    private final HealthBarVisibility healthBarVisibility;
+    private final Texture pixel;
 
     private final Map<Class<? extends GameObject>, String> texturePaths = new HashMap<>();
     private final Map<String, Texture> textures = new HashMap<>();
-    private final Map<GameObject, SpriteRenderer> sprites = new LinkedHashMap<>();
+    private final Map<GameObject, ObjectGraphics> sprites = new LinkedHashMap<>();
 
-    public GameRenderer(String levelFile, int levelWidth, int levelHeight) {
+    public GameRenderer(String levelFile, int levelWidth, int levelHeight, HealthBarVisibility healthBarVisibility) {
+        this.healthBarVisibility = healthBarVisibility;
         batch = new SpriteBatch();
+        pixel = createPixel();
 
         tiledMap = new TmxMapLoader().load(levelFile);
         tiledMapRenderer = createSingleLayerMapRenderer(tiledMap, batch);
@@ -60,7 +67,11 @@ public class GameRenderer implements Disposable, GameFieldListener {
             throw new IllegalStateException("No texture bound for " + object.getClass().getSimpleName());
         }
         Texture texture = textures.computeIfAbsent(texturePath, Texture::new);
-        sprites.put(object, new SpriteRenderer(new TextureRegion(texture)));
+        ObjectGraphics graphics = new SpriteRenderer(object, new TextureRegion(texture));
+        if (object instanceof LivingObject) {
+            graphics = new HealthBarDecorator(graphics, (LivingObject) object, healthBarVisibility, pixel);
+        }
+        sprites.put(object, graphics);
     }
 
     @Override
@@ -77,11 +88,8 @@ public class GameRenderer implements Disposable, GameFieldListener {
         // start recording all drawing commands
         batch.begin();
 
-        for (Map.Entry<GameObject, SpriteRenderer> entry : sprites.entrySet()) {
-            GameObject object = entry.getKey();
-            entry.getValue().draw(batch, tileMovement,
-                    object.getCoordinates(), object.getDestinationCoordinates(),
-                    object.getMovementProgress(), object.getRotation());
+        for (ObjectGraphics graphics : sprites.values()) {
+            graphics.draw(batch, tileMovement);
         }
 
         // submit all drawing requests
@@ -93,12 +101,22 @@ public class GameRenderer implements Disposable, GameFieldListener {
         Gdx.gl.glClear(GL_COLOR_BUFFER_BIT);
     }
 
+    private static Texture createPixel() {
+        Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        pixmap.setColor(Color.WHITE);
+        pixmap.fill();
+        Texture texture = new Texture(pixmap);
+        pixmap.dispose();
+        return texture;
+    }
+
     @Override
     public void dispose() {
         // dispose of all the native resources (classes which implement com.badlogic.gdx.utils.Disposable)
         for (Texture texture : textures.values()) {
             texture.dispose();
         }
+        pixel.dispose();
         tiledMap.dispose();
         batch.dispose();
     }

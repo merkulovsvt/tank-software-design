@@ -192,11 +192,11 @@ class GameFieldTest {
         RecordingListener listener = new RecordingListener();
         field.addListener(listener);
 
-        field.hit(new GridPoint2(1, 1), 2);
-        assertEquals(1, tank.getHealth());
+        field.hit(new GridPoint2(1, 1), 75);
+        assertEquals(25, tank.getHealth());
         assertFalse(field.isFree(new GridPoint2(1, 1)));
 
-        field.hit(new GridPoint2(1, 1), 1);
+        field.hit(new GridPoint2(1, 1), 25);
         assertTrue(tank.isDestroyed());
         assertTrue(field.isFree(new GridPoint2(1, 1)));
         assertEquals(List.of("removed Tank"), listener.events);

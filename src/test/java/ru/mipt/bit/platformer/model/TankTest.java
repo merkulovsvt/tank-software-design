@@ -156,11 +156,11 @@ class TankTest {
 
         tank.shoot(field);
         tank.shoot(field);
-        assertEquals(2, target.getHealth());
+        assertEquals(75, target.getHealth());
 
         field.update(0.5f);
         tank.shoot(field);
-        assertEquals(1, target.getHealth());
+        assertEquals(50, target.getHealth());
     }
 
     @Test
@@ -173,9 +173,9 @@ class TankTest {
 
         tank.shoot(field);
 
-        assertEquals(2, target.getHealth());
+        assertEquals(75, target.getHealth());
         assertFalse(tank.isDestroyed());
-        assertEquals(3, tank.getHealth());
+        assertEquals(100, tank.getHealth());
     }
 
     @Test
@@ -194,17 +194,24 @@ class TankTest {
         tank.shoot(field);
 
         assertEquals(0, counter.added);
-        assertEquals(3, tank.getHealth());
+        assertEquals(100, tank.getHealth());
         assertFalse(field.isFree(new GridPoint2(9, 2)));
+    }
+
+    @Test
+    void startsWithFullHealth() {
+        Tank tank = new Tank(new GridPoint2(1, 1), 0.4f);
+        assertEquals(100, tank.getMaxHealth());
+        assertEquals(tank.getMaxHealth(), tank.getHealth());
     }
 
     @Test
     void tankIsDestroyedWhenHealthRunsOut() {
         Tank tank = new Tank(new GridPoint2(1, 1), 0.4f);
 
-        tank.hit(2);
+        tank.hit(75);
         assertFalse(tank.isDestroyed());
-        tank.hit(1);
+        tank.hit(25);
         assertTrue(tank.isDestroyed());
     }
 
@@ -212,7 +219,7 @@ class TankTest {
     void destroyedTankNeitherMovesNorShoots() {
         GameField field = new GameField(10, 8);
         Tank tank = new Tank(new GridPoint2(1, 1), 0.4f);
-        tank.hit(3);
+        tank.hit(100);
 
         AddedCounter counter = new AddedCounter();
         field.addListener(counter);

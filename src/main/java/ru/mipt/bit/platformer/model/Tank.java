@@ -5,12 +5,12 @@ import com.badlogic.gdx.math.GridPoint2;
 import static com.badlogic.gdx.math.MathUtils.isEqual;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.continueProgress;
 
-public class Tank implements FieldObject {
+public class Tank implements FieldObject, LivingObject {
 
-    private static final int MAX_HEALTH = 3;
+    private static final int MAX_HEALTH = 100;
     private static final float RELOAD_TIME = 0.5f;
     private static final float BULLET_SPEED = 0.1f;
-    private static final int BULLET_DAMAGE = 1;
+    private static final int BULLET_DAMAGE = 25;
 
     private final GridPoint2 coordinates;
     private final GridPoint2 destinationCoordinates;
@@ -71,8 +71,14 @@ public class Tank implements FieldObject {
         return health <= 0;
     }
 
+    @Override
     public int getHealth() {
         return health;
+    }
+
+    @Override
+    public int getMaxHealth() {
+        return MAX_HEALTH;
     }
 
     public boolean isMoving() {
