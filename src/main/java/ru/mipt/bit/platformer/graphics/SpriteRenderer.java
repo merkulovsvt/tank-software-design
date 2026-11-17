@@ -9,6 +9,9 @@ import ru.mipt.bit.platformer.util.TileMovement;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.createBoundingRectangle;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.drawTextureRegionUnscaled;
 
+/**
+ * Infrastructure: draws the texture of a GameObject.
+ */
 public class SpriteRenderer implements ObjectGraphics {
 
     private final GameObject object;

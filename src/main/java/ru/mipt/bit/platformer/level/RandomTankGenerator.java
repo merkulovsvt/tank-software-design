@@ -7,6 +7,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Application: part of the "start a level" use case, places enemy tanks.
+ */
 public class RandomTankGenerator {
 
     private final int width;

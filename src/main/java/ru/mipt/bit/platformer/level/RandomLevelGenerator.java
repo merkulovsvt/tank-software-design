@@ -7,6 +7,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Driven adapter of the LevelLoader port: generates a random level instead of reading it.
+ */
 public class RandomLevelGenerator implements LevelLoader {
 
     private final int width;

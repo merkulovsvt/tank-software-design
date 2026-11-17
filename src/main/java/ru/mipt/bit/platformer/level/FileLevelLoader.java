@@ -12,6 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Driven adapter of the LevelLoader port (infrastructure): reads a level from a resource file.
+ */
 public class FileLevelLoader implements LevelLoader {
 
     private static final char TREE = 'T';

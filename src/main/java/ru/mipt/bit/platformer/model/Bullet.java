@@ -5,6 +5,9 @@ import com.badlogic.gdx.math.GridPoint2;
 import static com.badlogic.gdx.math.MathUtils.isEqual;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.continueProgress;
 
+/**
+ * Domain entity.
+ */
 public class Bullet implements FieldObject {
 
     private final GridPoint2 coordinates;

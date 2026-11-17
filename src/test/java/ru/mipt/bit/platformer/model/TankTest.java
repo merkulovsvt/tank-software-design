@@ -156,11 +156,11 @@ class TankTest {
 
         tank.shoot(field);
         tank.shoot(field);
-        assertEquals(75, target.getHealth());
+        assertEquals(70, target.getHealth());
 
         field.update(0.5f);
         tank.shoot(field);
-        assertEquals(50, target.getHealth());
+        assertEquals(40, target.getHealth());
     }
 
     @Test
@@ -173,7 +173,7 @@ class TankTest {
 
         tank.shoot(field);
 
-        assertEquals(75, target.getHealth());
+        assertEquals(70, target.getHealth());
         assertFalse(tank.isDestroyed());
         assertEquals(100, tank.getHealth());
     }
@@ -229,5 +229,87 @@ class TankTest {
 
         assertFalse(tank.isMoving());
         assertEquals(0, counter.added);
+    }
+
+    @Test
+    void slightlyDamagedTankMovesAsUndamaged() {
+        Tank tank = new Tank(new GridPoint2(1, 1), 0.4f);
+        tank.hit(25);
+        tank.move(Direction.RIGHT, ALL_FREE);
+
+        tank.update(0.4f);
+
+        assertFalse(tank.isMoving());
+        assertEquals(new GridPoint2(2, 1), tank.getCoordinates());
+    }
+
+    @Test
+    void damagedTankMovesTwiceSlower() {
+        Tank tank = new Tank(new GridPoint2(1, 1), 0.4f);
+        tank.hit(30);
+        tank.move(Direction.RIGHT, ALL_FREE);
+
+        tank.update(0.4f);
+        assertTrue(tank.isMoving());
+        assertEquals(0.5f, tank.getMovementProgress(), 0.0001f);
+
+        tank.update(0.4f);
+        assertFalse(tank.isMoving());
+        assertEquals(new GridPoint2(2, 1), tank.getCoordinates());
+    }
+
+    @Test
+    void damagedTankStillShoots() {
+        GameField field = new GameField(10, 8);
+        Tank tank = new Tank(new GridPoint2(1, 1), 0.4f);
+        Tank target = new Tank(new GridPoint2(2, 1), 0.4f);
+        field.add(tank);
+        field.add(target);
+        tank.hit(85);
+
+        tank.shoot(field);
+
+        assertEquals(70, target.getHealth());
+    }
+
+    @Test
+    void heavilyDamagedTankMovesThreeTimesSlower() {
+        Tank tank = new Tank(new GridPoint2(1, 1), 0.4f);
+        tank.hit(90);
+        tank.move(Direction.RIGHT, ALL_FREE);
+
+        tank.update(0.8f);
+        assertTrue(tank.isMoving());
+
+        tank.update(0.4f);
+        assertFalse(tank.isMoving());
+        assertEquals(new GridPoint2(2, 1), tank.getCoordinates());
+    }
+
+    @Test
+    void heavilyDamagedTankCannotShoot() {
+        GameField field = new GameField(10, 8);
+        Tank tank = new Tank(new GridPoint2(1, 1), 0.4f);
+        Tank target = new Tank(new GridPoint2(2, 1), 0.4f);
+        field.add(tank);
+        field.add(target);
+        tank.hit(90);
+
+        tank.shoot(field);
+
+        assertEquals(100, target.getHealth());
+    }
+
+    @Test
+    void stateChangesDuringTheMove() {
+        Tank tank = new Tank(new GridPoint2(1, 1), 0.4f);
+        tank.move(Direction.RIGHT, ALL_FREE);
+
+        tank.update(0.2f);
+        tank.hit(30);
+        tank.update(0.2f);
+
+        assertTrue(tank.isMoving());
+        assertEquals(0.75f, tank.getMovementProgress(), 0.0001f);
     }
 }

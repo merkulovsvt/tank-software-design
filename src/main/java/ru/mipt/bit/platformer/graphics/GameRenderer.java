@@ -27,6 +27,9 @@ import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.createSingleLayerMapRenderer;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.getSingleLayer;
 
+/**
+ * Driven adapter (infrastructure): implements the GameFieldListener port and draws the field with libGDX.
+ */
 public class GameRenderer implements Disposable, GameFieldListener {
 
     private final Batch batch;

@@ -7,6 +7,9 @@ import ru.mipt.bit.platformer.model.Tank;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Application: AI of an enemy tank, drives it through the same TankController port as the player.
+ */
 public class RandomTankController implements TankController {
 
     private static final Direction[] DIRECTIONS = Direction.values();

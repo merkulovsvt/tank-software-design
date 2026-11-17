@@ -7,6 +7,9 @@ import com.badlogic.gdx.math.Rectangle;
 import ru.mipt.bit.platformer.model.LivingObject;
 import ru.mipt.bit.platformer.util.TileMovement;
 
+/**
+ * Infrastructure: decorator over ObjectGraphics that adds the health bar of a LivingObject.
+ */
 public class HealthBarDecorator implements ObjectGraphics {
 
     private static final float BAR_WIDTH = 100f;

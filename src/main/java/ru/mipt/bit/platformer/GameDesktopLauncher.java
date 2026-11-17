@@ -41,6 +41,12 @@ import static com.badlogic.gdx.Input.Keys.SPACE;
 import static com.badlogic.gdx.Input.Keys.UP;
 import static com.badlogic.gdx.Input.Keys.W;
 
+/**
+ * Infrastructure: libGDX entry point and composition root, wires adapters to ports.
+ * Missing port: the game loop (collect commands, execute them, update the field) lives in render()
+ * and takes time from Gdx.graphics. An application service with tick(deltaTime) as a driving port
+ * would let the game run without libGDX.
+ */
 public class GameDesktopLauncher implements ApplicationListener {
 
     private static final String LEVEL_FILE = "level.tmx";

@@ -4,6 +4,9 @@ import ru.mipt.bit.platformer.model.Direction;
 import ru.mipt.bit.platformer.model.Obstacles;
 import ru.mipt.bit.platformer.model.Tank;
 
+/**
+ * Application, use case "move a tank": implements the GameCommand port by calling the domain.
+ */
 public class MoveCommand implements GameCommand {
 
     private final Tank tank;

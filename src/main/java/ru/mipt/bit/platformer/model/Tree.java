@@ -2,6 +2,9 @@ package ru.mipt.bit.platformer.model;
 
 import com.badlogic.gdx.math.GridPoint2;
 
+/**
+ * Domain entity.
+ */
 public class Tree implements FieldObject {
 
     private final GridPoint2 coordinates;

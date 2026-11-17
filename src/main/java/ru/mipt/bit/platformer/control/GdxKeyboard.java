@@ -2,6 +2,9 @@ package ru.mipt.bit.platformer.control;
 
 import com.badlogic.gdx.Gdx;
 
+/**
+ * Adapter of the Keyboard port to libGDX Gdx.input (infrastructure).
+ */
 public class GdxKeyboard implements Keyboard {
 
     @Override

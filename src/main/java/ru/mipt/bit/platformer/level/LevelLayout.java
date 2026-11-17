@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Application: data that crosses the LevelLoader port.
+ */
 public class LevelLayout {
 
     private final int width;

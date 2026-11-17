@@ -5,6 +5,9 @@ import com.badlogic.gdx.math.GridPoint2;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Domain entity: the field with all objects. Reports changes through the GameFieldListener port.
+ */
 public class GameField implements Battlefield {
 
     private final int width;

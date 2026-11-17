@@ -1,16 +1,22 @@
 package ru.mipt.bit.platformer.model;
 
 import com.badlogic.gdx.math.GridPoint2;
+import ru.mipt.bit.platformer.model.state.LightState;
+import ru.mipt.bit.platformer.model.state.TankState;
 
 import static com.badlogic.gdx.math.MathUtils.isEqual;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.continueProgress;
 
+/**
+ * Domain entity. Speed and ability to shoot depend on its {@link TankState}.
+ * Uses libGDX GridPoint2/MathUtils and util.GdxGameUtils: the domain is not independent of infrastructure yet.
+ */
 public class Tank implements FieldObject, LivingObject {
 
     private static final int MAX_HEALTH = 100;
     private static final float RELOAD_TIME = 0.5f;
     private static final float BULLET_SPEED = 0.1f;
-    private static final int BULLET_DAMAGE = 25;
+    private static final int BULLET_DAMAGE = 30;
 
     private final GridPoint2 coordinates;
     private final GridPoint2 destinationCoordinates;
@@ -20,6 +26,7 @@ public class Tank implements FieldObject, LivingObject {
     private Direction direction = Direction.RIGHT;
     private int health = MAX_HEALTH;
     private float reloadLeft = 0f;
+    private TankState state = new LightState();
 
     public Tank(GridPoint2 initialCoordinates, float movementSpeed) {
         this.coordinates = new GridPoint2(initialCoordinates);
@@ -40,10 +47,10 @@ public class Tank implements FieldObject, LivingObject {
     }
 
     public void shoot(Battlefield battlefield) {
-        if (isMoving() || isDestroyed() || reloadLeft > 0f) {
+        if (isMoving() || isDestroyed() || reloadLeft > 0f || !state.canShoot()) {
             return;
         }
-        reloadLeft = RELOAD_TIME;
+        reloadLeft = state.reloadTime(RELOAD_TIME);
         GridPoint2 start = direction.nextCoordinates(coordinates);
         if (battlefield.isFree(start)) {
             battlefield.add(new Bullet(start, direction, BULLET_SPEED, BULLET_DAMAGE, battlefield));
@@ -55,7 +62,7 @@ public class Tank implements FieldObject, LivingObject {
     @Override
     public void update(float deltaTime) {
         reloadLeft = Math.max(0f, reloadLeft - deltaTime);
-        movementProgress = continueProgress(movementProgress, deltaTime, movementSpeed);
+        movementProgress = continueProgress(movementProgress, deltaTime, state.movementTime(movementSpeed));
         if (!isMoving()) {
             coordinates.set(destinationCoordinates);
         }
@@ -64,6 +71,7 @@ public class Tank implements FieldObject, LivingObject {
     @Override
     public void hit(int damage) {
         health -= damage;
+        state = state.onHealthChanged((float) health / MAX_HEALTH);
     }
 
     @Override

@@ -6,6 +6,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.IntPredicate;
 
+/**
+ * Driving adapter (infrastructure): turns pressed keys into GameCommand-s.
+ * Talks to the input device only through the Keyboard port.
+ */
 public class PlayerInputController implements TankController {
 
     private final Keyboard keyboard;
