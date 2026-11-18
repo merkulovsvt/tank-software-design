@@ -38,10 +38,14 @@ public class HealthBarDecorator implements ObjectGraphics {
         float y = rectangle.y + BAR_OFFSET_Y;
         float healthShare = Math.max(0f, (float) object.getHealth() / object.getMaxHealth());
 
-        batch.setColor(Color.RED);
-        batch.draw(pixel, x, y, BAR_WIDTH, BAR_HEIGHT);
-        batch.setColor(Color.GREEN);
-        batch.draw(pixel, x, y, BAR_WIDTH * healthShare, BAR_HEIGHT);
-        batch.setColor(Color.WHITE);
+        float previousColor = batch.getPackedColor();
+        try {
+            batch.setColor(Color.RED);
+            batch.draw(pixel, x, y, BAR_WIDTH, BAR_HEIGHT);
+            batch.setColor(Color.GREEN);
+            batch.draw(pixel, x, y, BAR_WIDTH * healthShare, BAR_HEIGHT);
+        } finally {
+            batch.setPackedColor(previousColor);
+        }
     }
 }
