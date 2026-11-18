@@ -1,0 +1,19 @@
+package ru.mipt.bit.platformer.control;
+
+import com.badlogic.gdx.Gdx;
+
+/**
+ * Adapter of the Keyboard port to libGDX Gdx.input (infrastructure).
+ */
+public class GdxKeyboard implements Keyboard {
+
+    @Override
+    public boolean isPressed(int keyCode) {
+        return Gdx.input.isKeyPressed(keyCode);
+    }
+
+    @Override
+    public boolean isJustPressed(int keyCode) {
+        return Gdx.input.isKeyJustPressed(keyCode);
+    }
+}
